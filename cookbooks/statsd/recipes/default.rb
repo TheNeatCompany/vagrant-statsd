@@ -28,17 +28,22 @@ execute "checkout statsd" do
   cwd "/tmp"
 end
 
+execute "checkout version" do
+  command "git checkout #{node[:statsd][:git_tag_version]}"
+  cwd "/tmp/statsd"
+end
+
 package "debhelper"
 
 execute "build debian package" do
   command "dpkg-buildpackage -us -uc"
-  creates "/tmp/statsd_0.0.2_all.deb"
+  creates "/tmp/statsd_#{node[:statsd][:deb_pkg_version]}_all.deb"
   cwd "/tmp/statsd"
 end
 
 dpkg_package "statsd" do
   action :install
-  source "/tmp/statsd_0.0.2_all.deb"
+  source "/tmp/statsd_#{node[:statsd][:deb_pkg_version]}_all.deb"
 end
 
 template "/etc/statsd/rdioConfig.js" do
